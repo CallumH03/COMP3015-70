@@ -16,7 +16,8 @@ class SceneBasic_Uniform : public Scene
 private:
     Plane plane;
     std::unique_ptr<ObjMesh> mesh;
-
+    float tPrev;
+    float angle;
     GLSLProgram prog;
     void setMatrices();
     void compile();

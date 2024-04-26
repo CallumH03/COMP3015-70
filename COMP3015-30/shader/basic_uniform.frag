@@ -17,7 +17,7 @@ uniform struct LightInfo{
     vec4 Position;
     vec3 La;
     vec3 L;
-}lights[3];
+} Light;
 
 //Material information
 uniform struct MaterialInfo{
@@ -26,6 +26,9 @@ uniform struct MaterialInfo{
     vec3 Ks;
     float Shininess;
 }Material;
+
+const int levels=5;
+const float scaleFactor=1.0/levels;
 
 //Fog information
 uniform struct FogInfo{
@@ -38,7 +41,8 @@ uniform struct FogInfo{
 uniform bool Sand;
 
 //Function to calculate phong lighting
-vec3 phongModel( int light, vec3 position, vec3 n){
+vec3 blinnPhong( vec3 position, vec3 n){
+
     vec3 texColor = vec3(0.7f, 0.4f, 0.2f);
     if (Sand) {
         texColor = texture(Tex1, TexCoord).rgb;
@@ -46,35 +50,28 @@ vec3 phongModel( int light, vec3 position, vec3 n){
     else {
         texColor = texture(Tex2, TexCoord).rgb;
     }
-    vec3 ambient=lights[light].La*texColor;;
-    vec3 s=normalize(vec3(lights[light].Position.xyz)-position);
+    vec3 diffuse=vec3(0), spec=vec3(0);
+    vec3 ambient=Light.La*texColor;;
+    vec3 s=normalize(Light.Position.xyz-position);
     float sDotN=max(dot(s,n),0.0);
-    vec3 diffuse=texColor*sDotN;
-    vec3 spec=vec3(0.0);
+    diffuse=texColor*sDotN;
     if (sDotN>0.0){
         vec3 v=normalize(-position.xyz);
-        vec3 r=reflect(-s,n);
-        spec=Material.Ks*pow(max(dot(r,v),0.0),Material.Shininess);
+        vec3 h=normalize(v+s);
+        spec=Material.Ks*pow(max(dot(h,n),0.0),Material.Shininess);
     }
-    return ambient+(diffuse+spec)*lights[light].L;
+    return ambient+(diffuse+spec)*Light.L;
 }
 
 void main() {
     vec3 NormalizedNormal = normalize(Normal);
-    vec3 Colour = vec3(0.0);
-
-    //Calculate lighting contribution from each light source
-    for (int i = 0; i < 3; i++) {
-        Colour += phongModel(i, Position, NormalizedNormal);
-    }
 
     //Calulate fog based on distance from camera
     float dist = abs(Position.z);
     float fogFactor = (Fog.MaxDist - dist) / (Fog.MaxDist - Fog.MinDist);
     fogFactor = clamp(fogFactor, 0.0, 1.0);
+    vec3 shadeColor=blinnPhong(Position,normalize(Normal));
+    vec3 color=mix(Fog.Color,shadeColor,fogFactor);
 
-    //Mix final color with fog color based on fog factor
-    vec3 finalColor = mix(Fog.Color, Colour, fogFactor);
-
-    FragColor = vec4(finalColor, 1.0);
+    FragColor = vec4(color, 1.0);
 }

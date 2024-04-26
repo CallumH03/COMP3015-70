@@ -15,9 +15,13 @@ using std::endl;
 #include "helper/texture.h"
 
 using glm::vec3;
+using glm::vec4;
+using glm::mat3;
 using glm::mat4;
 
-SceneBasic_Uniform::SceneBasic_Uniform() : plane(18.0f,18.0f,100,100) { //Initializes plane object
+SceneBasic_Uniform::SceneBasic_Uniform() :
+    tPrev(0),
+    plane(18.0f,18.0f,100,100) { //Initializes plane object
     mesh = ObjMesh::load("media/palmtree.obj",true); //Loads in custom model
 }
 
@@ -29,6 +33,7 @@ void SceneBasic_Uniform::initScene()
     model = mat4(1.0f);
     view = glm::lookAt(vec3(2.75f, 1.00f, 2.00f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)); //Camera positions
     projection = mat4(1.0f);
+    angle = 0.0f;
 
     float x, z;
     for (int i = 0; i < 3; i++) { //Calculate light positions (3 lights)
@@ -44,14 +49,8 @@ void SceneBasic_Uniform::initScene()
     prog.setUniform("Fog.Color", vec3(0.5f, 0.5f, 0.5f));
 
     //Light properties
-    prog.setUniform("lights[0].L", vec3(0.0f, 0.0f, 0.8f));
-    prog.setUniform("lights[1].L", vec3(0.0f, 0.01f, 0.0f));
-    prog.setUniform("lights[2].L", vec3(0.8f, 0.4f, 0.0f));
-
-    prog.setUniform("lights[0].La", vec3(0.0f, 0.0f, 0.2f));
-    prog.setUniform("lights[1].La", vec3(0.0f, 0.2f, 0.0f));
-    prog.setUniform("lights[2].La", vec3(0.2f, 0.1f, 0.0f));
-
+    prog.setUniform("Light.L", vec3(0.9f));
+    prog.setUniform("Light.La", vec3(0.5f));
 }
 
 void SceneBasic_Uniform::compile()
@@ -70,18 +69,25 @@ void SceneBasic_Uniform::compile()
 
 void SceneBasic_Uniform::update(float t)
 {
-
+    float deltaT = t - tPrev;
+    if (tPrev == 0.0f) deltaT = 0.0f;
+    tPrev = t;
+    angle += 0.1f * deltaT;
+    if (angle > glm::two_pi<float>())angle -= glm::two_pi<float>();
 }
 
 void SceneBasic_Uniform::render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    vec4 lightPos = vec4(10.0f*cos(angle), 10.0f, 10.0f*sin(angle), 1.0f);
+    prog.setUniform("Light.Position", vec4(view*lightPos));
 
     //Set material properties for mesh
-    prog.setUniform("Material.Kd", vec3(0.3f, 0.15f, 0.05f));
-    prog.setUniform("Material.Ka", vec3(0.2f, 0.1f, 0.03f));
-    prog.setUniform("Material.Ks", vec3(0.6f, 0.6f, 0.6f));
-    prog.setUniform("Material.Shininess", 180.0f);
+    prog.setUniform("Material.Kd", vec3(0.2f, 0.55f, 0.9f));
+    prog.setUniform("Material.Ks", vec3(0.95f, 0.95f, 0.95f));
+    prog.setUniform("Material.Ka", vec3(0.2f*0.3f, 0.55f*0.3f, 0.9f*0.3f));
+    prog.setUniform("Material.Shininess", 100.0f);
 
     //Dont enable sand texture for mesh
     prog.setUniform("Sand", false);
