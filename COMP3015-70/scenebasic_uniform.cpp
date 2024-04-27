@@ -34,23 +34,17 @@ void SceneBasic_Uniform::initScene()
     //model = mat4(1.0f);
     //view = glm::lookAt(vec3(2.75f, 1.00f, 2.00f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)); //Camera positions
     
-    
     projection = mat4(1.0f);
     angle = 0.0f;
 
-    float x, z;
-    for (int i = 0; i < 3; i++) { //Calculate light positions (3 lights)
-        std::stringstream name;
-        name << "lights[" << i << "].Position";
-        x = 2.0f * cosf((glm::two_pi<float>() / 3) * i);
-        z = 2.0f * sinf((glm::two_pi<float>() / 3) * i);
-        prog.setUniform(name.str().c_str(), view * glm::vec4(x, 5.0f, z + 1.0f, 1.0f));
-    }
-    //Fog parameters
-    prog.setUniform("Fog.MaxDist", 10.0f);
-    prog.setUniform("Fog.MinDist", 1.0f);
-    prog.setUniform("Fog.Color", vec3(0.5f, 0.5f, 0.5f));
-
+    //float x, z;
+    //for (int i = 0; i < 3; i++) { //Calculate light positions (3 lights)
+    //    std::stringstream name;
+    //    name << "lights[" << i << "].Position";
+    //    x = 2.0f * cosf((glm::two_pi<float>() / 3) * i);
+    //    z = 2.0f * sinf((glm::two_pi<float>() / 3) * i);
+    //    prog.setUniform(name.str().c_str(), view * glm::vec4(x, 5.0f, z + 1.0f, 1.0f));
+    //}
 
     setupFBO();
 
@@ -82,9 +76,13 @@ void SceneBasic_Uniform::initScene()
 
     glBindVertexArray(0);
 
-    prog.setUniform("EdgeThreshold", 0.05f);
+    prog.setUniform("EdgeThreshold", 0.02f);
     prog.setUniform("Light.L", vec3(0.9f));
     prog.setUniform("Light.La", vec3(0.5f));
+
+    prog.setUniform("Fog.MaxDist", 10.0f);
+    prog.setUniform("Fog.MinDist", 1.0f);
+    prog.setUniform("Fog.Color", vec3(0.5f, 0.5f, 0.5f));
 
 }
 
