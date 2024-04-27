@@ -21,7 +21,7 @@ using glm::mat4;
 
 SceneBasic_Uniform::SceneBasic_Uniform() :
     tPrev(0),
-    plane(50.0f,50.0f,1,1) { //Initializes plane object
+    plane(25.0f,25.0f,1,1) { //Initializes plane object
     mesh = ObjMesh::load("media/palmtree.obj",true); //Loads in custom model
 }
 
@@ -80,8 +80,8 @@ void SceneBasic_Uniform::initScene()
     prog.setUniform("Light.L", vec3(0.9f));
     prog.setUniform("Light.La", vec3(0.5f));
 
-    prog.setUniform("Fog.MaxDist", 10.0f);
-    prog.setUniform("Fog.MinDist", 1.0f);
+    prog.setUniform("Fog.MaxDist", 20.0f);
+    prog.setUniform("Fog.MinDist", 5.0f);
     prog.setUniform("Fog.Color", vec3(0.5f, 0.5f, 0.5f));
 
 }
@@ -141,6 +141,49 @@ void SceneBasic_Uniform::pass1()
     model = glm::scale(model, vec3(2.0f, 2.0f, 2.0f));
     setMatrices();
     mesh->render();
+
+    model = mat4(1.0f);
+    model = glm::rotate(model, glm::radians(0.0f), vec3(1.0f, 0.0f, 0.0f));
+    model = glm::translate(model, vec3(7.0f, 1.0f, -4.25f));
+    model = glm::scale(model, vec3(2.0f, 2.0f, 2.0f));
+    setMatrices();
+    mesh->render();
+
+    model = mat4(1.0f);
+    model = glm::rotate(model, glm::radians(0.0f), vec3(1.0f, 0.0f, 0.0f));
+    model = glm::translate(model, vec3(1.0f, 1.0f, 7.25f));
+    model = glm::scale(model, vec3(2.0f, 2.0f, 2.0f));
+    setMatrices();
+    mesh->render();
+
+    model = mat4(1.0f);
+    model = glm::rotate(model, glm::radians(0.0f), vec3(1.0f, 0.0f, 0.0f));
+    model = glm::translate(model, vec3(-2.0f, 1.0f, 2.25f));
+    model = glm::scale(model, vec3(2.0f, 2.0f, 2.0f));
+    setMatrices();
+    mesh->render();
+
+    model = mat4(1.0f);
+    model = glm::rotate(model, glm::radians(0.0f), vec3(1.0f, 0.0f, 0.0f));
+    model = glm::translate(model, vec3(2.9f, 1.0f, 3.0f));
+    model = glm::scale(model, vec3(2.0f, 2.0f, 2.0f));
+    setMatrices();
+    mesh->render();
+
+    model = mat4(1.0f);
+    model = glm::rotate(model, glm::radians(0.0f), vec3(1.0f, 0.0f, 0.0f));
+    model = glm::translate(model, vec3(-3.0f, 1.0f, -3.0f));
+    model = glm::scale(model, vec3(2.0f, 2.0f, 2.0f));
+    setMatrices();
+    mesh->render();
+
+    model = mat4(1.0f);
+    model = glm::rotate(model, glm::radians(0.0f), vec3(1.0f, 0.0f, 0.0f));
+    model = glm::translate(model, vec3(8.0f, 1.0f, 1.25f));
+    model = glm::scale(model, vec3(2.0f, 2.0f, 2.0f));
+    setMatrices();
+    mesh->render();
+
 
 
     //Set material properties for plane

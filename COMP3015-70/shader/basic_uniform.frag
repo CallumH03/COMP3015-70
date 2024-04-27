@@ -85,15 +85,19 @@ vec4 pass2(){
 
 
 void main() {
-    if (Pass==1) FragColor=pass1();
-    if (Pass==2) FragColor=pass2();
-    
-    vec3 NormalizedNormal = normalize(Normal);
+    vec4 finalColor;
 
-    //Calulate fog based on distance from camera
+    if (Pass == 1) {
+        finalColor = pass1();
+    } else if (Pass == 2) {
+        finalColor = pass2();
+    } else {
+        finalColor = vec4(0.0); 
+    }
+
     float dist = abs(Position.z);
     float fogFactor = (Fog.MaxDist - dist) / (Fog.MaxDist - Fog.MinDist);
     fogFactor = clamp(fogFactor, 0.0, 1.0);
-    vec3 shadeColor=blinnPhong(Position,normalize(Normal));
-    vec3 color=mix(Fog.Color,shadeColor,fogFactor);
+    vec3 color = mix(Fog.Color, finalColor.rgb, fogFactor);
+    FragColor = vec4(color, finalColor.a);
 }
