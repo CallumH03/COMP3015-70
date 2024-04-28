@@ -1,5 +1,5 @@
 # Palm Tree Beach
-This my COMP3015 70% Submission in which we was tasked with expanding on our CW1 by implementing atleast 1 shader from a set list, in which I chose edge detection as I believe it gave a cool look and style to the beach. I also implemented toon shading based on feedback from CW1.
+This is my COMP3015 70% Submission in which we was tasked with expanding on our CW1 by implementing atleast 1 shader from a set list, in which I chose edge detection as I believe it gave a cool look and style to the beach. I also implemented toon shading based on feedback from CW1.
 
 ## Visual Studio + Operating System
 What I used to create this program:

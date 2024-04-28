@@ -75,8 +75,8 @@ void SceneBasic_Uniform::initScene()
     prog.setUniform("Light.La", vec3(0.5f));
 
     //Fog uniforms
-    prog.setUniform("Fog.MaxDist", 20.0f);
-    prog.setUniform("Fog.MinDist", 5.0f);
+    prog.setUniform("Fog.MaxDist", 12.0f);
+    prog.setUniform("Fog.MinDist", 3.0f);
     prog.setUniform("Fog.Color", vec3(0.5f, 0.5f, 0.5f));
 
 }
