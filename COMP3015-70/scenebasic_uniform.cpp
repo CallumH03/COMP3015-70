@@ -31,23 +31,13 @@ void SceneBasic_Uniform::initScene()
     compile();
     glClearColor(0.0f, 0.5f, 0.7f, 1.0f);
     glEnable(GL_DEPTH_TEST);
-    //model = mat4(1.0f);
-    //view = glm::lookAt(vec3(2.75f, 1.00f, 2.00f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f)); //Camera positions
-    
+
     projection = mat4(1.0f);
     angle = 0.0f;
 
-    //float x, z;
-    //for (int i = 0; i < 3; i++) { //Calculate light positions (3 lights)
-    //    std::stringstream name;
-    //    name << "lights[" << i << "].Position";
-    //    x = 2.0f * cosf((glm::two_pi<float>() / 3) * i);
-    //    z = 2.0f * sinf((glm::two_pi<float>() / 3) * i);
-    //    prog.setUniform(name.str().c_str(), view * glm::vec4(x, 5.0f, z + 1.0f, 1.0f));
-    //}
-
     setupFBO();
 
+    //Vertex arrays
     GLfloat verts[] = {
         -1.0f,-1.0f,0.0f,1.0f,-1.0f,0.0f,1.0f,1.0f,0.0f,
         -1.0f,-1.0f,0.0f,1.0f,1.0f,0.0f,-1.0f,1.0f,0.0f
@@ -57,6 +47,7 @@ void SceneBasic_Uniform::initScene()
         0.0f,0.0f,1.0f,1.0f,0.0f,1.0f
     };
 
+    //Buffer setup
     unsigned int handle[2];
     glGenBuffers(2, handle);
     glBindBuffer(GL_ARRAY_BUFFER, handle[0]);
@@ -76,31 +67,37 @@ void SceneBasic_Uniform::initScene()
 
     glBindVertexArray(0);
 
+    //Edge uniforms
     prog.setUniform("EdgeThreshold", 0.02f);
+
+    //Light uniforms
     prog.setUniform("Light.L", vec3(0.9f));
     prog.setUniform("Light.La", vec3(0.5f));
 
+    //Fog uniforms
     prog.setUniform("Fog.MaxDist", 20.0f);
     prog.setUniform("Fog.MinDist", 5.0f);
     prog.setUniform("Fog.Color", vec3(0.5f, 0.5f, 0.5f));
 
 }
 
-void SceneBasic_Uniform::compile()
+void SceneBasic_Uniform::compile() //Compile shaders
 {
-    try { //Compile shaders
+    //Compile shaders
+    try { 
         prog.compileShader("shader/basic_uniform.vert");
         prog.compileShader("shader/basic_uniform.frag");
         prog.link();
         prog.use();
     }
-    catch (GLSLProgramException& e) { //Error handling
+    //Error handling
+    catch (GLSLProgramException& e) {
         cerr << e.what() << endl;
         exit(EXIT_FAILURE);
     }
 }
 
-void SceneBasic_Uniform::update(float t)
+void SceneBasic_Uniform::update(float t) //Rotation update
 {
     float deltaT = t - tPrev;
     if (tPrev == 0.0f) deltaT = 0.0f;
@@ -109,22 +106,24 @@ void SceneBasic_Uniform::update(float t)
     if (angle > glm::two_pi<float>()) angle -= glm::two_pi<float>();
 }
 
-void SceneBasic_Uniform::render() {
+void SceneBasic_Uniform::render() { //Rendering Pass 1 and 2
     pass1();
     glFlush();
     pass2();
 
 }
-void SceneBasic_Uniform::pass1()
+void SceneBasic_Uniform::pass1() // Sets uniforms, binds the FBO, and renders objects like mesh and plane, also sets up view and projection matrices, lighting, and material properties
 {
     prog.setUniform("Pass", 1);
     glBindFramebuffer(GL_FRAMEBUFFER, fboHandle);
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    //Projection matrices
     view = glm::lookAt(vec3(7.0f * cos(angle), 4.0f, 7.0f * sin(angle)), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     projection = glm::perspective(glm::radians(60.0f), (float)width / height, 0.3f, 100.0f);
     
+    //Light setup
     vec4 lightPos = vec4(10.0f*cos(angle), 10.0f, 10.0f*sin(angle), 1.0f);
     prog.setUniform("Light.Position", vec4(view*lightPos));
 
@@ -184,8 +183,6 @@ void SceneBasic_Uniform::pass1()
     setMatrices();
     mesh->render();
 
-
-
     //Set material properties for plane
     prog.setUniform("Material.Kd", vec3(0.76f, 0.7f, 0.5f));
     prog.setUniform("Material.Ks", vec3(0.5f, 0.5f, 0.5f));
@@ -200,7 +197,7 @@ void SceneBasic_Uniform::pass1()
 
 }
 
-void SceneBasic_Uniform::pass2() {
+void SceneBasic_Uniform::pass2() { // Bind back to default framebuffer, set uniforms for second pass.
     prog.setUniform("Pass", 2);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glActiveTexture(GL_TEXTURE0);
@@ -220,12 +217,12 @@ void SceneBasic_Uniform::pass2() {
     glBindVertexArray(0);
 }
 
-void SceneBasic_Uniform::resize(int w, int h)
+void SceneBasic_Uniform::resize(int w, int h) //Viewpoint settings
 {
-    glViewport(0, 0, w, h); //Viewpoint settings
+    glViewport(0, 0, w, h);
     width = w;
     height = h;
-    projection = glm::perspective(glm::radians(70.0f), (float)w / h, 0.3f, 100.0f); //Projection matrix
+    projection = glm::perspective(glm::radians(70.0f), (float)w / h, 0.3f, 100.0f);
 
 }
 
@@ -236,7 +233,7 @@ void SceneBasic_Uniform::setMatrices() { //Calculate matrixe's
     prog.setUniform("MVP", projection * mv);
 }
 
-void SceneBasic_Uniform::setupFBO() {
+void SceneBasic_Uniform::setupFBO() { //SetupFBO
     glGenFramebuffers(1, &fboHandle);
     glBindFramebuffer(GL_FRAMEBUFFER, fboHandle);
 

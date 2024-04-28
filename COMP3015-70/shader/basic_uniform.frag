@@ -7,6 +7,7 @@ in vec3 Normal;
 //Texture sampler
 layout (binding=0) uniform sampler2D RenderTex;
 
+//Edge detection
 uniform float EdgeThreshold;
 uniform int Pass;
 const vec3 lum=vec3(0.2126,0.7152,0.0722);
@@ -36,6 +37,7 @@ uniform struct FogInfo{
     vec3 Color;
 }Fog;
 
+//Toon shading
 const int levels=25;
 const float scaleFactor=1.0/levels;
 
@@ -54,14 +56,17 @@ vec3 blinnPhong( vec3 position, vec3 n){
     return ambient+(diffuse+spec)*Light.L;
 }
 
+//Edge detection luminance
 float luminance(vec3 color){
     return dot(lum,color);
 }
 
+//Pass 1
 vec4 pass1(){
     return vec4(blinnPhong(Position,normalize(Normal)),1.0);
 }
 
+//Pass 2
 vec4 pass2(){
     ivec2 pix=ivec2(gl_FragCoord.xy);
     float s00 = luminance(texelFetchOffset(RenderTex,pix,0,ivec2(-1,1)).rgb);
@@ -83,7 +88,7 @@ vec4 pass2(){
         return texelFetch(RenderTex,pix,0); //vec(0.0,0.0,0.0,1.0)
 }
 
-
+//finalColor and Fog
 void main() {
     vec4 finalColor;
 
